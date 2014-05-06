@@ -8,10 +8,8 @@
 #include "type.h"
 #include "geometricConstraint.h"
 #include "diffusion.h"
-extern "C" {
 #include "lapacke.h"
 #include "cblas.h"
-}
 
 class LINCS
 {
@@ -129,7 +127,7 @@ public:
 
         llt = diffusion.diffusionMatrix;
         LAPACKE_dpotrf(LAPACK_COL_MAJOR,'L',R.size()*3,llt.data(),R.size()*3);
-        cblas_dtrmv(CblasColMajor,CblasLower,CblasNoTrans,CblasNonUnit,R.size()*3,llt.data(),R.size()*3,_randomMove.data(),1);
+        cblas_dtrmv(CblasColMajor,CblasLower,CblasNoTrans,CblasNonUnit,R.size()*3,llt.data(),_randomMove.data(),1);
         cblas_daxpy(R.size()*3,std::sqrt(timeStep*2.0),_randomMove.data(),1,X.data(),1);
 
         const double tdivkT = timeStep/(M_KB*temperature);
@@ -154,7 +152,7 @@ public:
             LAPACKE_dpotrs(LAPACK_COL_MAJOR,'L',_numGC,1,_BDBt.data(),_numGC,geometricConstraint.error.data(),_numGC);
 
             _lamda.swap(geometricConstraint.error);
-            cblas_dgemv(CblasColMajor,CblasNoTrans,R.size()*3,_numGC,1.0,_DBt.data(),R.size()*3,_lamda.data(),1,-1.0,X.data(),1);
+            cblas_dgemv(CblasColMajor,CblasNoTrans,R.size()*3,_lamda,1,_DBt.data(),R.size()*3,_lamda.data(),1,-1.0,X.data(),1);
         }
 
         for(int i=0;i<R.size();++i)
