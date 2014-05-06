@@ -1,1 +1,1 @@
-#include "lincs/lincsblas.h"
+#include "lincs/lincss.h"
