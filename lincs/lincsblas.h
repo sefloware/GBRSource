@@ -42,7 +42,7 @@ public:
     {  geometricConstraint.pushError(error); }
 
     inline void setSeed(unsigned seed) // set the random seed.
-	{ generator.seed(seed); }
+    { generator.seed(seed); }
     inline void setBeadRadius(double beadRadius) // set the bead Radius.
     {
         this->beadRadius = beadRadius;
@@ -65,9 +65,9 @@ public:
     {
         //reset the F, X, geometricConstraint to zero and recalculate the diffusion matrix.
         F.setZero();
-		X.setZero();
+        X.setZero();
         if(_numGC) geometricConstraint.setZero();
-		diffusion(R);
+        diffusion(R);
     }
 
     inline void conservativeResizeGC(unsigned numGC)
@@ -121,10 +121,10 @@ public:
     inline void freeCoordinates()  //free any fixation on the coordinate components.
     { fixBool.setConstant(false); }
 
-	bool operator()()
-	{
+    bool operator()()
+    {
         //computing the new position with one step of the time based on the LINCS algorithm.
-		_N01distGen();
+        _N01distGen();
 
         llt = diffusion.diffusionMatrix;
         LAPACKE_dpotrf(LAPACK_COL_MAJOR,'L',R.size()*3,llt.data(),R.size()*3);
@@ -149,25 +149,26 @@ public:
             _DBt.noalias()=diffusion.diffusionMatrix*geometricConstraint.gradient;
             _BDBt.noalias()=geometricConstraint.gradient.transpose()*_DBt;
 
+            //BDBt is a positive definite matrix.
             LAPACKE_dpotrf(LAPACK_COL_MAJOR,'L',_numGC,_BDBt.data(),_numGC);
             LAPACKE_dpotrs(LAPACK_COL_MAJOR,'L',_numGC,1,_BDBt.data(),_numGC,geometricConstraint.error.data(),_numGC);
 
             _lamda.swap(geometricConstraint.error);
-            cblas_dgemv(CblasRowMajor,CblasNoTrans,R.size()*3,_numGC,1.0,_DBt.data(),R.size()*3,_lamda.data(),1,-1.0,X.data(),1);
+            cblas_dgemv(CblasColMajor,CblasNoTrans,R.size()*3,_numGC,-1.0,_DBt.data(),R.size()*3,_lamda.data(),1,1.0,X.data(),1);
         }
 
         for(int i=0;i<R.size();++i)
-			R[i]+=X.segment<3>(i*3);
-		return true;
-	}
+            R[i]+=X.segment<3>(i*3);
+        return true;
+    }
 private:
-	inline void _N01distGen()
-	{
-		if(_randomMove.size()!=R.size()*3)
-			_randomMove.resize(R.size()*3);
+    inline void _N01distGen()
+    {
+        if(_randomMove.size()!=R.size()*3)
+            _randomMove.resize(R.size()*3);
         for(int i=0;i<_randomMove.size();++i)
-			_randomMove[i]=_normalGen();
-	}
+            _randomMove[i]=_normalGen();
+    }
 public:
     VectorXV3d R; // the position collection vector.
     base_generator_type generator; // the random generator.
@@ -182,13 +183,13 @@ private:
     MatrixXd llt;
 
     GeometricConstraint geometricConstraint;
-	VectorXd _randomMove;
-	MatrixXd _BDBt,_DBt;
-	VectorXd _lamda;
+    VectorXd _randomMove;
+    MatrixXd _BDBt,_DBt;
+    VectorXd _lamda;
 
-	typedef boost::random::normal_distribution<double> normal;
-	typedef boost::variate_generator<base_generator_type&, normal> gen_type;
-	gen_type _normalGen;
+    typedef boost::random::normal_distribution<double> normal;
+    typedef boost::variate_generator<base_generator_type&, normal> gen_type;
+    gen_type _normalGen;
 };
 
 #endif // LINCS_H_
