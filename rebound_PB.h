@@ -3,7 +3,7 @@
 
 #include <cstdio>
 #include <cmath>
-#include <boost/math/special_functions/erf.hpp>
+//#include <boost/math/special_functions/erf.hpp>
 #include <boost/random/uniform_smallint.hpp>
 #include <boost/random/variate_generator.hpp>
 #include "common.h"
@@ -17,7 +17,7 @@ inline double rebound_PB(double sqtDt,base_generator_type &generator, double dis
 //Reference: Peters E, Barenbrug T M. Physical Review E, 2002, 66(5): 056701.
 {
     distance/=sqtDt;
-    double terf=boost::math::erf(distance/2.0);
+    double terf=/*boost::math::*/erf(distance/2.0);
     double f1=2.0/std::sqrt(M_PI)*std::exp(-distance*distance/4.0)-distance*(1.0-terf);
     double tmp = distance*terf+2.0/std::sqrt(M_PI)*std::exp(-distance*distance/4.0);
     double f2=std::sqrt(std::abs(2.0+distance*distance-tmp*tmp));
