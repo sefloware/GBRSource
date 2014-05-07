@@ -146,14 +146,14 @@ public:
             if(_DBt.rows() != R.size()*3)
                 _DBt.resize(R.size()*3, _numGC);
 
-            _DBt.noalias()=geometricConstraint.gradient.transpose()*diffusion.diffusionMatrix;
-            _BDBt.noalias()=_DBt*geometricConstraint.gradient;
+            _DBt.noalias()=diffusion.diffusionMatrix*geometricConstraint.gradient;
+            _BDBt.noalias()=geometricConstraint.gradient.transpose()*_DBt;
 
             LAPACKE_dpotrf(LAPACK_COL_MAJOR,'L',_numGC,_BDBt.data(),_numGC);
             LAPACKE_dpotrs(LAPACK_COL_MAJOR,'L',_numGC,1,_BDBt.data(),_numGC,geometricConstraint.error.data(),_numGC);
 
             _lamda.swap(geometricConstraint.error);
-            cblas_dgemv(CblasColMajor,CblasNoTrans,R.size()*3,_numGC,1.0,_DBt.data(),R.size()*3,_lamda.data(),1,-1.0,X.data(),1);
+            cblas_dgemv(CblasRowMajor,CblasNoTrans,R.size()*3,_numGC,1.0,_DBt.data(),R.size()*3,_lamda.data(),1,-1.0,X.data(),1);
         }
 
         for(int i=0;i<R.size();++i)
