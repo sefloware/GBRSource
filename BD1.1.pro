@@ -14,7 +14,6 @@ HEADERS += \
     lincs/geometricConstraintBlas.h \
     lincs/lincsBlas.h \
     lincs/blasRef.h \
-    lincs/lincs.h \
     bendingForce.h \
     obstacles.h \
     SCnanochannel.h \
@@ -30,8 +29,10 @@ HEADERS += \
     lincs_blas/type.h \
     lincs_blas/lincs.h \
     lincs_blas/geometricConstraint.h \
-    lincs_blas/diffusion.h
+    lincs_blas/diffusion.h \
+    lincs/lincsblas.h
 
 QMAKE_CXXFLAGS += -O2
 
-INCLUDEPATH += C:\Qt\Qt5.1.1\Tools\mingw48_32\include
+INCLUDEPATH += /home/iebboy/.local/include
+LIBS += -lpthread -L/home/iebboy/.local/lib -lopenblas
